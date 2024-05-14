@@ -1,16 +1,16 @@
 using Amazon.DynamoDBv2.Model;
 
-namespace DeweyHomeMovieApi.Models;
+namespace DadsTapesApi.Models;
 
 
 
-public class VideoTimeStamp
+public class AudioTimeStamp
 {
   public string? Description { get; set; }
   public string? TimeStamp { get; set; }
 }
 
-public class Movie
+public class Tape
 {
   public string? Id { get; set; }
 
@@ -32,10 +32,10 @@ public class Movie
 
   public IEnumerable<String>? Tags { get; set; }
 
-  public IEnumerable<VideoTimeStamp>? VideoTimeStamps { get; set; }
+  public IEnumerable<AudioTimeStamp>? AudioTimeStamps { get; set; }
 
 
-  public Movie fromAttributeList(Dictionary<string, AttributeValue> attributeList)
+  public Tape fromAttributeList(Dictionary<string, AttributeValue> attributeList)
   {
     // TODO: for when I get board, refactor this
     foreach (KeyValuePair<string, AttributeValue> kvp in attributeList)
@@ -75,8 +75,8 @@ public class Movie
         case "tags":
           Tags = value.SS;
           break;
-        case "videoTimeStamps":
-          VideoTimeStamps = value.L.Select(x => new VideoTimeStamp
+        case "audioTimeStamps":
+          AudioTimeStamps = value.L.Select(x => new AudioTimeStamp
           {
             Description = x.M["description"].S,
             TimeStamp = x.M["timeStamp"].S
@@ -121,8 +121,8 @@ public class Movie
                 { "tags", new AttributeValue {
                       SS = this.Tags?.ToList()
                   }},
-                { "videoTimeStamps", new AttributeValue {
-                      L = this.VideoTimeStamps?.Select(x => new AttributeValue
+                { "audioTimeStamps", new AttributeValue {
+                      L = this.AudioTimeStamps?.Select(x => new AttributeValue
                       {
                         M = new Dictionary<string, AttributeValue>
                         {

@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "DeweyHomeMovieApi": {
+    "DadsTapesApi": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

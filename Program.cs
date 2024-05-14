@@ -1,6 +1,6 @@
 using Amazon.S3;
-using BookStoreApi.Services;
-using DeweyHomeMovieApi.Models;
+using DadsTapesApi.Services;
+using DadsTapesApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +19,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<DynamoDbSettings>(
     builder.Configuration.GetSection("DynamoDbSettings"));
 
-builder.Services.AddSingleton<MovieService>();
+builder.Services.AddSingleton<TapeService>();
 
 builder.Services.AddCors(options =>
 {
-  options.AddPolicy(name: "video-sites",
+  options.AddPolicy(name: "tape-sites",
                     policy =>
                     {
                       policy.WithOrigins("http://localhost:4200", "https://home.videos.markdewey.dev/")
@@ -44,7 +44,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 
-app.UseCors("video-sites");
+app.UseCors("tape-sites");
 
 // app.UseHttpsRedirection();
 

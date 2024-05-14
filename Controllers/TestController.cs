@@ -1,23 +1,23 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using BookStoreApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using DadsTapesApi.Services;
 
-namespace DeweyHomeMovieApi
+namespace DadsTapesApi
 {
   [Route("api/[controller]")]
   [ApiController]
   public class TestController : ControllerBase
   {
 
-    private readonly MovieService _movieServiceV2;
+    private readonly TapeService _tapeService;
     private readonly IAmazonS3 _s3Client;
     private readonly IConfiguration _configuration;
 
-    public TestController(IConfiguration configuration, IAmazonS3 s3Client, MovieService serviceV2)
+    public TestController(IConfiguration configuration, IAmazonS3 s3Client, TapeService serviceV2)
     {
       _s3Client = s3Client;
-      _movieServiceV2 = serviceV2;
+      _tapeService = serviceV2;
       _configuration = configuration;
     }
 
@@ -30,7 +30,7 @@ namespace DeweyHomeMovieApi
     [HttpGet("dynamo/testdocs")]
     public async Task<ActionResult> GetDynamoTestDocs()
     {
-      return Ok(await this._movieServiceV2.GetAllTestDocs());
+      return Ok(await this._tapeService.GetAllTestDocs());
     }
 
     [HttpGet("site/get-env")]

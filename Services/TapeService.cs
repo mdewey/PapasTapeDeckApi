@@ -1,18 +1,18 @@
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using DeweyHomeMovieApi.Models;
+using DadsTapesApi.Models;
 using Microsoft.Extensions.Options;
 
-namespace BookStoreApi.Services;
+namespace DadsTapesApi.Services;
 
-public class MovieService : IMovieServices
+public class TapeService : ITapeServices
 {
   private readonly DynamoDbSettings _settings;
 
   private readonly AmazonDynamoDBClient _dynamoClient;
 
-  public MovieService(
+  public TapeService(
     IOptions<DynamoDbSettings> settings)
   {
     _settings = settings.Value;
@@ -21,23 +21,23 @@ public class MovieService : IMovieServices
     _dynamoClient = new AmazonDynamoDBClient(clientConfig);
 
   }
-  public async Task<List<Movie>> Get()
+  public async Task<List<Tape>> Get()
   {
 
     var request = new ScanRequest
     {
-      TableName = _settings.MovieCollectionName,
+      TableName = _settings.TapeCollectionName,
     };
 
     var response = await _dynamoClient.ScanAsync(request);
-    return response.Items.Select(s => new Movie().fromAttributeList(s)).ToList();
+    return response.Items.Select(s => new Tape().fromAttributeList(s)).ToList();
   }
 
-  public async Task<Movie> Get(string id)
+  public async Task<Tape> Get(string id)
   {
     var request = new GetItemRequest
     {
-      TableName = _settings.MovieCollectionName,
+      TableName = _settings.TapeCollectionName,
       Key = new Dictionary<string, AttributeValue>()
             {
                 { "id", new AttributeValue {
@@ -49,16 +49,16 @@ public class MovieService : IMovieServices
 
     var response = await _dynamoClient.GetItemAsync(request);
     var attributeList = response.Item;
-    return new Movie().fromAttributeList(attributeList);
+    return new Tape().fromAttributeList(attributeList);
   }
 
-  public async Task<Movie> Insert(Movie movie)
+  public async Task<Tape> Insert(Tape movie)
   {
     var id = "movie-" + Guid.NewGuid().ToString();
     movie.Id = id;
     var request = new PutItemRequest
     {
-      TableName = this._settings.MovieCollectionName,
+      TableName = this._settings.TapeCollectionName,
       Item = movie.CreateAttributeList()
     };
     await _dynamoClient.PutItemAsync(request);
@@ -83,7 +83,7 @@ public class MovieService : IMovieServices
     // Check the response.
     var attributeList = response.Item; // attribute list in the response.
     var rv = new List<object>();
-    rv.Add(new Movie().fromAttributeList(attributeList));
+    rv.Add(new Tape().fromAttributeList(attributeList));
     return rv;
   }
 }
