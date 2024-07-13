@@ -21,14 +21,14 @@ namespace DadsTapesApi
       _tapeService = service;
       Configuration = _configuration;
     }
-    // GET: api/Movies
+    // GET: api/tapes
     [HttpGet]
     public async Task<ActionResult> Get()
     {
       return Ok(await this._tapeService.Get());
     }
 
-    // GET: api/Movies/5
+    // GET: api/tapes/5
     [HttpGet("{id}")]
     public async Task<ActionResult> Get(string id)
     {
@@ -40,7 +40,7 @@ namespace DadsTapesApi
       return Ok(tape);
     }
 
-    // GET: api/Movies/string-id/audio
+    // GET: api/tapes/string-id/audio
     [HttpGet("{id}/audio")]
     public async Task<ActionResult> GetVideo(string id)
     {
@@ -67,12 +67,28 @@ namespace DadsTapesApi
     }
 
 
-    // POST: api/Movies
+    // POST: api/tapes
     [HttpPost]
     public async Task<ActionResult> Post(Tape tape)
     {
       tape.Id = String.Empty;
       return Ok(await this._tapeService.Insert(tape));
+    }
+
+
+
+    [HttpPost("{id}/tag")]
+    public async Task<ActionResult> AddTimeStamp(string id,[FromBody] AudioTimeStamp tag){
+      // var tape = await this._tapeService.Get(id);
+      // if(tape == null ){
+      //   return NotFound();
+      // }
+      // if (tape.AudioTimeStamps == null){
+      //   tape.AudioTimeStamps = new List<AudioTimeStamp>();
+      // }
+      // tape.AudioTimeStamps.Add(tag);
+      // await this._tapeService.Update(tape);
+      return Ok(new {id, tag});
     }
 
   }

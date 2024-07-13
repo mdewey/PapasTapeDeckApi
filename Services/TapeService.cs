@@ -52,17 +52,64 @@ public class TapeService : ITapeServices
     return new Tape().fromAttributeList(attributeList);
   }
 
-  public async Task<Tape> Insert(Tape movie)
+  public async Task<Tape> Insert(Tape tape)
   {
-    var id = "movie-" + Guid.NewGuid().ToString();
-    movie.Id = id;
+    var id = "tape-" + Guid.NewGuid().ToString();
+    tape.Id = id;
+    Console.WriteLine(tape);
     var request = new PutItemRequest
     {
       TableName = this._settings.TapeCollectionName,
-      Item = movie.CreateAttributeList()
+      Item = tape.CreateAttributeList()
     };
     await _dynamoClient.PutItemAsync(request);
-    return movie;
+    return tape;
+  }
+
+  public async Task<Tape> Update(Tape tape){
+    var request = new UpdateItemRequest
+    {
+      TableName = this._settings.TapeCollectionName,
+      Key = new Dictionary<string, AttributeValue>()
+            {
+                { "id", new AttributeValue {
+                      S = tape.Id
+                  } }
+            },
+      ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                { "#T", "title" },
+                { "#F", "filePath" },
+                { "#U", "url" },
+                { "#L", "length" },
+                { "#I", "imageUrl" },
+                { "#V", "version" },
+                { "#T", "tags" },
+                { "#A", "audioTimeStamps" }
+            },
+      ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                { ":t", new AttributeValue { S = tape.Title } },
+                { ":f", new AttributeValue { S = tape.FilePath } },
+                { ":u", new AttributeValue { S = tape.Url } },
+                { ":l", new AttributeValue { S = tape.Length } },
+                { ":i", new AttributeValue { S = tape.ImageUrl } },
+                { ":v", new AttributeValue { N = tape.Version.ToString() } },
+                { ":t", new AttributeValue { SS = tape.Tags?.ToList() } },
+                { ":a", new AttributeValue { L = tape.AudioTimeStamps?.Select(x => new AttributeValue
+                {
+                  M = new Dictionary<string, AttributeValue>
+                  {
+                    { "description", new AttributeValue { S = x.Description } },
+                    { "timeStamp", new AttributeValue { S = x.TimeStamp } }
+                  }
+                }).ToList() } }
+            },
+      UpdateExpression = "SET #T = :t, #F = :f, #U = :u, #L = :l, #I = :i, #V = :v, #T = :t, #A = :a",
+      ReturnValues = "ALL_NEW"
+    };
+    var response = await _dynamoClient.UpdateItemAsync(request);
+    return new Tape().fromAttributeList(response.Attributes);
   }
 
   public async Task<object> GetAllTestDocs()

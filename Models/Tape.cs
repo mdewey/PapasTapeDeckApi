@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using Amazon.DynamoDBv2.Model;
 
 namespace DadsTapesApi.Models;
@@ -28,11 +30,11 @@ public class Tape
 
   public string? ImageUrl { get; set; }
 
-  public int Version { get; set; } = 7;
+  public int Version { get; set; } = 1;
 
   public IEnumerable<String>? Tags { get; set; }
 
-  public IEnumerable<AudioTimeStamp>? AudioTimeStamps { get; set; }
+  public List<AudioTimeStamp>? AudioTimeStamps { get; set; }
 
 
   public Tape fromAttributeList(Dictionary<string, AttributeValue> attributeList)
@@ -80,7 +82,7 @@ public class Tape
           {
             Description = x.M["description"].S,
             TimeStamp = x.M["timeStamp"].S
-          });
+          }).ToList();
           break;
       }
     }
@@ -89,7 +91,7 @@ public class Tape
 
   public Dictionary<string, AttributeValue> CreateAttributeList()
   {
-    return new Dictionary<string, AttributeValue>()
+    var data =  new Dictionary<string, AttributeValue>()
             {
                 { "id", new AttributeValue {
                       S = this.Id
@@ -100,9 +102,7 @@ public class Tape
                 { "awsKey", new AttributeValue {
                       S = this.AwsKey
                   }},
-                { "awsImageKey", new AttributeValue {
-                      S = this.AwsImageKey
-                  }},
+               
                 { "filePath", new AttributeValue {
                       S = this.FilePath
                   }},
@@ -117,24 +117,43 @@ public class Tape
                   }},
                 { "version", new AttributeValue {
                       N = this.Version.ToString()
-                  }},
-                { "tags", new AttributeValue {
-                      SS = this.Tags?.ToList()
-                  }},
-                { "audioTimeStamps", new AttributeValue {
-                      L = this.AudioTimeStamps?.Select(x => new AttributeValue
-                      {
-                        M = new Dictionary<string, AttributeValue>
-                        {
-                          { "description", new AttributeValue { S = x.Description } },
-                          { "timeStamp", new AttributeValue { S = x.TimeStamp } }
-                        }
-                      }).ToList()
-                  }},
+                  }},   
             };
+    if(this.AwsImageKey != null){
+      data.Add("awsImageKey", new AttributeValue
+      {
+        S = this.AwsImageKey
+      });
+    }
 
+    if (this.Tags != null)
+    {
+      data.Add("tags", new AttributeValue
+      {
+        SS = this.Tags.ToList()
+      });
+    }
+    
+    if (this.AudioTimeStamps != null){
+      data.Add("audioTimeStamps", new AttributeValue
+      {
+        L = this.AudioTimeStamps.Select(x => new AttributeValue
+        {
+          M = new Dictionary<string, AttributeValue>
+          {
+            { "description", new AttributeValue { S = x.Description } },
+            { "timeStamp", new AttributeValue { S = x.TimeStamp } }
+          }
+        }).ToList()
+      });
+    }
 
-
+    return data;
 
   }
+
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }
