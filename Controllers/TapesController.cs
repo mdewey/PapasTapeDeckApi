@@ -45,7 +45,7 @@ namespace DadsTapesApi
     public async Task<ActionResult> GetVideo(string id)
     {
       var tape = await this._tapeService.Get(id);
-
+      
       var urlRequest = new GetPreSignedUrlRequest()
       {
         BucketName = Configuration["AWS:BUCKET"],
@@ -75,20 +75,22 @@ namespace DadsTapesApi
       return Ok(await this._tapeService.Insert(tape));
     }
 
-
+    public class TagViewModel{
+      public string Tag { get; set; }
+    }
 
     [HttpPost("{id}/tag")]
-    public async Task<ActionResult> AddTimeStamp(string id,[FromBody] AudioTimeStamp tag){
-      // var tape = await this._tapeService.Get(id);
-      // if(tape == null ){
-      //   return NotFound();
-      // }
-      // if (tape.AudioTimeStamps == null){
-      //   tape.AudioTimeStamps = new List<AudioTimeStamp>();
-      // }
-      // tape.AudioTimeStamps.Add(tag);
-      // await this._tapeService.Update(tape);
-      return Ok(new {id, tag});
+    public async Task<ActionResult> AddTag(string id,[FromBody] TagViewModel vm){
+      var tape = await this._tapeService.Get(id);
+      if(tape == null ){
+        return NotFound();
+      }
+      if (tape.Tags == null){
+        tape.Tags = new List<String>();
+      }
+      tape.Tags.Add(vm.Tag);
+      await this._tapeService.Update(tape);
+      return Ok(new {id, vm, tape});
     }
 
   }

@@ -32,9 +32,9 @@ public class Tape
 
   public int Version { get; set; } = 1;
 
-  public IEnumerable<String>? Tags { get; set; }
+  public List<String>? Tags { get; set; }
 
-  public List<AudioTimeStamp>? AudioTimeStamps { get; set; }
+  public List<AudioTimeStamp>? AudioTimeStamps { get; set; } = new List<AudioTimeStamp>();
 
 
   public Tape fromAttributeList(Dictionary<string, AttributeValue> attributeList)
