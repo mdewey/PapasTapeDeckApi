@@ -32,7 +32,7 @@ public class Tape
 
   public int Version { get; set; } = 1;
 
-  public List<String>? Tags { get; set; }
+  public List<String>? Tags { get; set; } = new List<String>();
 
   public List<AudioTimeStamp>? AudioTimeStamps { get; set; } = new List<AudioTimeStamp>();
 
@@ -126,7 +126,7 @@ public class Tape
       });
     }
 
-    if (this.Tags != null)
+    if (this.Tags != null && this.Tags.Count > 0)
     {
       data.Add("tags", new AttributeValue
       {
@@ -134,7 +134,7 @@ public class Tape
       });
     }
     
-    if (this.AudioTimeStamps != null){
+    if (this.AudioTimeStamps != null && this.AudioTimeStamps.Count > 0){
       data.Add("audioTimeStamps", new AttributeValue
       {
         L = this.AudioTimeStamps.Select(x => new AttributeValue

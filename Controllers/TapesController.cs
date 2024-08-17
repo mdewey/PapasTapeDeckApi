@@ -92,5 +92,37 @@ namespace DadsTapesApi
       return Ok(new {id, vm, tape});
     }
 
+    public class AudioTimeStampViewModel{
+      public string Description { get; set; }
+      public string TimeStamp { get; set; }
+    }
+
+    [HttpPost("{id}/timestamps")]
+    public async Task<ActionResult> AddTimeStamp(string id, [FromBody] AudioTimeStampViewModel timeStampViewModel)
+    {
+      if (timeStampViewModel == null || 
+        String.IsNullOrEmpty(timeStampViewModel.Description) || 
+        String.IsNullOrEmpty(timeStampViewModel.TimeStamp))
+      {
+        return BadRequest();
+      }
+
+      var tape = await this._tapeService.Get(id);
+      if (tape == null)
+      {
+        return NotFound();
+      }
+      if (tape.AudioTimeStamps == null)
+      {
+        tape.AudioTimeStamps = new List<AudioTimeStamp>();
+      }
+      tape.AudioTimeStamps.Add(new AudioTimeStamp { 
+        Description = timeStampViewModel.Description, 
+        TimeStamp = timeStampViewModel.TimeStamp 
+      });
+      await this._tapeService.Update(tape);
+      return Ok(new { id, timeStampViewModel, tape });
+    }
+
   }
 }

@@ -66,51 +66,18 @@ public class TapeService : ITapeServices
     return tape;
   }
 
-  public async Task<Tape> Update(Tape tape){
-    var request = new UpdateItemRequest
+  public async Task<Tape> Update(Tape tape)
+  {
+    Console.WriteLine(tape);
+    var request = new PutItemRequest
     {
       TableName = this._settings.TapeCollectionName,
-      Key = new Dictionary<string, AttributeValue>()
-            {
-                { "id", new AttributeValue {
-                      S = tape.Id
-                  } }
-            },
-      ExpressionAttributeNames = new Dictionary<string, string>
-            {
-                { "#T", "title" },
-                { "#F", "filePath" },
-                { "#U", "url" },
-                { "#L", "length" },
-                { "#I", "imageUrl" },
-                { "#V", "version" },
-                { "#G", "tags" },
-                // { "#A", "audioTimeStamps" }
-            },
-      ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-            {
-                { ":t", new AttributeValue { S = tape.Title } },
-                { ":f", new AttributeValue { S = tape.FilePath } },
-                { ":u", new AttributeValue { S = tape.Url } },
-                { ":l", new AttributeValue { S = tape.Length } },
-                { ":i", new AttributeValue { S = tape.ImageUrl } },
-                { ":v", new AttributeValue { N = tape.Version.ToString() } },
-                { ":g", new AttributeValue { SS = tape.Tags?.ToList() } },
-                // { ":a", new AttributeValue { L = tape.AudioTimeStamps?.Select(x => new AttributeValue
-                // {
-                //   M = new Dictionary<string, AttributeValue>
-                //   {
-                //     { "description", new AttributeValue { S = x.Description } },
-                //     { "timeStamp", new AttributeValue { S = x.TimeStamp } }
-                //   }
-                // }).ToList() } }
-            },
-      UpdateExpression = "SET #T = :t, #F = :f, #U = :u, #L = :l, #I = :i, #V = :v, #G = :g",
-      ReturnValues = "ALL_NEW"
+      Item = tape.CreateAttributeList()
     };
-    var response = await _dynamoClient.UpdateItemAsync(request);
-    return new Tape().fromAttributeList(response.Attributes);
+    await _dynamoClient.PutItemAsync(request);
+    return tape;
   }
+
 
   public async Task<object> GetAllTestDocs()
   {
