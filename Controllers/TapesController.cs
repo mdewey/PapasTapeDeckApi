@@ -63,7 +63,6 @@ namespace DadsTapesApi
       var request = new GetObjectRequest { BucketName = Configuration["AWS:BUCKET"], Key = tape.AwsImageKey };
       var response = await this._s3Client.GetObjectAsync(request);
       return new FileStreamResult(response.ResponseStream, "image/jpeg") { FileDownloadName = tape.AwsImageKey };
-
     }
 
 
