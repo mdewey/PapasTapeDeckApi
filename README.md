@@ -1,11 +1,6 @@
 # The Details
 
-Next:
-
-- set up prod db
-- force https
-- finalize and publish data
-- docs
+Deploy
 
 ## Stack
 
