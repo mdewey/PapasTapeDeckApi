@@ -46,11 +46,25 @@ namespace DadsTapesApi
     {
       var tape = await this._tapeService.Get(id);
       
+      // Parse the tape length to determine expiration time
+      // Length is stored as TimeSpan string (e.g., "00:45:30")
+      double expirationMinutes = 10; // Default to 10 minutes
+      if (!string.IsNullOrEmpty(tape.Length) && TimeSpan.TryParse(tape.Length, out var duration))
+      {
+        // Set expiration to the duration of the tape plus a 5-minute buffer
+        expirationMinutes = duration.TotalMinutes + 5;
+        // Cap at 7 days (AWS S3 max for presigned URLs)
+        if (expirationMinutes > 10080) // 7 days in minutes
+        {
+          expirationMinutes = 10080;
+        }
+      }
+      
       var urlRequest = new GetPreSignedUrlRequest()
       {
         BucketName = Configuration["AWS:BUCKET"],
         Key = tape.AwsKey,
-        Expires = DateTime.UtcNow.AddMinutes(10),
+        Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
       };
       return Ok(new { id, AudioUrl = _s3Client.GetPreSignedURL(urlRequest) });
     }
